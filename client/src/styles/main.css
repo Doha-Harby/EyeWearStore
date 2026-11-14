@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-charcoal antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-medium tracking-tight;
+  }
+  /* One consistent, visible keyboard focus style for the whole app (accessibility). */
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-gold-deep;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm text-sm font-medium tracking-wide transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply h-9 px-4 text-xs;
+  }
+  .btn-md {
+    @apply h-12 px-7;
+  }
+  .btn-lg {
+    @apply h-14 px-9 text-base;
+  }
+  .btn-primary {
+    @apply bg-charcoal text-ivory hover:bg-black;
+  }
+  .btn-secondary {
+    @apply border border-charcoal text-charcoal hover:bg-charcoal hover:text-ivory;
+  }
+  .btn-gold {
+    @apply bg-gold text-charcoal hover:bg-gold-deep hover:text-white;
+  }
+  .btn-ghost {
+    @apply text-charcoal hover:bg-ivory;
+  }
+  .field {
+    @apply h-12 w-full rounded-sm border border-stone/60 bg-white px-4 text-sm transition-colors placeholder:text-stone hover:border-charcoal focus:border-charcoal;
+  }
+  .field-error {
+    @apply border-red-700;
+  }
+  .eyebrow {
+    @apply text-xs font-medium tracking-[0.2em] text-gold-deep;
+  }
+}
+
+/* Page transition: a quick fade, used by <RouterView> in layouts. */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s ease;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
