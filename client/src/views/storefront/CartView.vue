@@ -37,7 +37,11 @@ async function remove(item) {
 
     <div v-else class="mt-10 grid gap-12 lg:grid-cols-[1fr_22rem]">
       <ul class="divide-y divide-stone/20 border-y border-stone/20">
-        <li v-for="item in cart.items" :key="item.productId + item.color" class="flex gap-5 py-6">
+        <li
+          v-for="item in cart.items"
+          :key="item.productId + item.color + JSON.stringify(item.prescription ?? '')"
+          class="flex gap-5 py-6"
+        >
           <RouterLink :to="`/product/${item.slug}`" class="w-24 shrink-0"
             ><ProductImage :src="item.image" :alt="item.name"
           /></RouterLink>
@@ -47,6 +51,9 @@ async function remove(item) {
                 <p class="text-xs text-stone-deep">{{ item.brand }}</p>
                 <h2 class="text-xl">{{ item.name }}</h2>
                 <p v-if="item.color" class="text-sm text-stone-deep">{{ item.color }}</p>
+                <p v-if="item.prescription" class="text-xs text-gold-deep">
+                  Prescription · {{ item.prescription.type }}, {{ item.prescription.coating }}
+                </p>
               </div>
               <button
                 class="self-start text-stone-deep hover:text-charcoal"

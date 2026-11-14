@@ -8,3 +8,6 @@ export async function getProducts(params) {
 }
 export const getCategories = async () => (await http.get('/categories')).data.data;
 export const getProduct = async (slug) => (await http.get(`/products/${slug}`)).data.data;
+export const getBrands = async () => (await http.get('/brands')).data.data;
+export const subscribe = (email) => http.post('/newsletter', { email });
+export const getRelated = async (slug) => (await http.get(`/products/${slug}/related`)).data.data;

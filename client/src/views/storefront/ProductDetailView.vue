@@ -7,6 +7,13 @@ import BaseButton from '@/components/common/BaseButton.vue';
 import BaseBadge from '@/components/common/BaseBadge.vue';
 import Skeleton from '@/components/common/Skeleton.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import ProductReviews from '@/components/products/ProductReviews.vue';
+import ZoomImage from '@/components/products/ZoomImage.vue';
+import VirtualTryOn from '@/components/products/VirtualTryOn.vue';
+import PrescriptionForm from '@/components/products/PrescriptionForm.vue';
+import RelatedProducts from '@/components/products/RelatedProducts.vue';
+import RecentlyViewed from '@/components/products/RecentlyViewed.vue';
+import { useRecentStore } from '@/stores/recent';
 import { getProduct } from '@/services/catalog.service';
 import { useCartStore } from '@/stores/cart';
 import { useToast } from '@/composables/useToast';
@@ -21,6 +28,9 @@ const error = ref('');
 const image = ref(0);
 const color = ref('');
 const qty = ref(1);
+const rx = ref({ enabled: false, valid: true, data: null }); // prescription form state
+const recent = useRecentStore();
+const isPrescription = computed(() => product.value?.category?.slug === 'eyeglasses');
 
 // Re-runs when the slug changes, so navigating between products reloads the page content.
 watch(
@@ -30,6 +40,7 @@ watch(
     error.value = '';
     try {
       product.value = await getProduct(slug);
+      recent.track(product.value);
       color.value = product.value.colors?.[0]?.name || '';
       image.value = 0;
       qty.value = 1;
@@ -58,6 +69,8 @@ const specs = computed(() => {
 });
 
 function addToCart() {
+  if (rx.value.enabled && !rx.value.valid)
+    return toast.error('Please complete your prescription details');
   const p = product.value;
   cart.add({
     productId: p._id,
@@ -69,6 +82,7 @@ function addToCart() {
     price: price.value,
     stock: p.stock,
     qty: qty.value,
+    prescription: rx.value.enabled ? rx.value.data : undefined,
   });
   toast.success(`${p.name} added to your cart`);
 }
@@ -93,7 +107,7 @@ function addToCart() {
 
     <div v-else class="grid gap-10 md:grid-cols-2 lg:gap-16">
       <div>
-        <ProductImage :src="product.images?.[image]" :alt="product.name" />
+        <ZoomImage :src="product.images?.[image]" :alt="product.name" />
         <div v-if="product.images?.length > 1" class="mt-3 grid grid-cols-5 gap-3">
           <button
             v-for="(src, i) in product.images"
@@ -140,6 +154,7 @@ function addToCart() {
             />
           </div>
         </fieldset>
+        <PrescriptionForm v-if="isPrescription" v-model="rx" class="mt-8" />
 
         <div class="mt-8 flex flex-wrap items-center gap-4">
           <div
@@ -181,5 +196,20 @@ function addToCart() {
         </dl>
       </div>
     </div>
+    <template v-if="product && !loading && !error">
+      <VirtualTryOn
+        v-if="product.category?.slug !== 'accessories'"
+        class="mt-16"
+        :product-name="product.name"
+      />
+      <RelatedProducts :slug="product.slug" class="mt-16" />
+      <RecentlyViewed :exclude="product._id" class="mt-16" />
+    </template>
+    <ProductReviews
+      v-if="product && !loading && !error"
+      :key="product._id"
+      :product-id="product._id"
+      class="mt-20"
+    />
   </div>
 </template>

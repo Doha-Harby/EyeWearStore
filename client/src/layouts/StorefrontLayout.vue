@@ -11,7 +11,6 @@ const open = ref(false);
 const links = [
   { to: '/', label: 'Home' },
   { to: '/shop', label: 'Shop' },
-  { to: '/design-system', label: 'Design system' },
 ];
 watch(
   () => route.fullPath,

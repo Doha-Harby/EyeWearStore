@@ -41,6 +41,7 @@ const schema = new mongoose.Schema(
     discount: { type: Number, default: 0 },
     total: Number,
     couponCode: String,
+    paymentRef: String, // Stripe payment intent id (used for refunds)
   },
   { timestamps: true },
 );

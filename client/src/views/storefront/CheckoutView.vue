@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { CheckCircle2 } from 'lucide-vue-next';
@@ -9,6 +9,7 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import { useCartStore } from '@/stores/cart';
 import { useToast } from '@/composables/useToast';
 import { createOrder, validateCoupon } from '@/services/orders.service';
+import { getPaymentConfig, createCheckoutSession } from '@/services/payments.service';
 import { money } from '@/utils/format';
 
 const cart = useCartStore();
@@ -21,6 +22,11 @@ const METHODS = {
 const FREE_OVER = 150; // display only: the server decides the real shipping cost
 
 const step = ref(1);
+const payMethod = ref('cod');
+const stripeEnabled = ref(false);
+onMounted(async () => {
+  stripeEnabled.value = (await getPaymentConfig().catch(() => ({ stripe: false }))).stripe;
+});
 const shippingMethod = ref('standard');
 const coupon = reactive({ code: '', applied: '', discount: 0, busy: false });
 const placing = ref(false);
@@ -72,13 +78,22 @@ async function placeOrder() {
   placing.value = true;
   try {
     order.value = await createOrder({
-      items: cart.items.map((i) => ({ productId: i.productId, qty: i.qty, color: i.color })),
+      items: cart.items.map((i) => ({
+        productId: i.productId,
+        qty: i.qty,
+        color: i.color,
+        prescription: i.prescription,
+      })),
       shippingAddress: { ...address },
       shippingMethod: shippingMethod.value,
-      paymentMethod: 'cod',
+      paymentMethod: payMethod.value,
       couponCode: coupon.applied || undefined,
     });
     cart.clear();
+    if (payMethod.value === 'stripe') {
+      window.location.href = (await createCheckoutSession(order.value._id)).url; // off to Stripe's payment page
+      return;
+    }
     step.value = 5;
   } catch (e) {
     toast.error(e.message); // e.g. "Sorry, Aurelia Sunglass is low on stock"
@@ -157,12 +172,19 @@ async function placeOrder() {
           </div>
 
           <div v-else-if="step === 3" class="space-y-4">
-            <label class="flex items-center gap-3 border border-charcoal p-5"
-              ><input type="radio" checked name="pay" /> Cash on delivery</label
+            <label
+              class="flex cursor-pointer items-center gap-3 border border-stone/40 p-5 has-[:checked]:border-charcoal"
+              ><input v-model="payMethod" type="radio" name="pay" value="cod" /> Cash on
+              delivery</label
+            >
+            <label
+              v-if="stripeEnabled"
+              class="flex cursor-pointer items-center gap-3 border border-stone/40 p-5 has-[:checked]:border-charcoal"
+              ><input v-model="payMethod" type="radio" name="pay" value="stripe" /> Credit or debit
+              card (secure payment by Stripe)</label
             >
             <p class="text-sm text-stone-deep">
-              Card payments will be added in a later update. Card details are never stored on our
-              servers.
+              Card details are entered on Stripe's secure page and never touch our servers.
             </p>
             <div class="flex gap-3">
               <BaseButton variant="ghost" @click="step = 2">Back</BaseButton
@@ -178,7 +200,8 @@ async function placeOrder() {
               </p>
               <p>{{ address.city }} {{ address.postalCode }}, {{ address.country }}</p>
               <p class="mt-2 text-stone-deep">
-                {{ METHODS[shippingMethod].label }} · Cash on delivery
+                {{ METHODS[shippingMethod].label }} ·
+                {{ payMethod === 'stripe' ? 'Card payment' : 'Cash on delivery' }}
               </p>
             </div>
             <div class="flex gap-3">

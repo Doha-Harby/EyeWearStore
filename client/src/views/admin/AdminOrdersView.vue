@@ -141,6 +141,13 @@ async function change(order, status) {
           <tr v-for="o in orders" :key="o._id">
             <td class="p-4">
               <p class="font-medium">{{ o.orderNumber }}</p>
+              <a
+                :href="`/api/orders/${o._id}/invoice`"
+                target="_blank"
+                rel="noopener"
+                class="text-xs underline underline-offset-4"
+                >Invoice (PDF)</a
+              >
               <p class="text-stone-deep">{{ shortDate(o.createdAt) }}</p>
             </td>
             <td class="p-4">

@@ -26,9 +26,23 @@ Open http://localhost:5173/design-system — the "API connection" badges should 
 Admin: `admin@lumiere.test` / `Admin#12345` · Customers: `amelia@lumiere.test`, `omar@lumiere.test` / `Customer#123`.
 Emails (verification, password reset) print in the server console unless `SMTP_*` is set (Ethereal/Mailtrap).
 
+## Testing
+```bash
+cd server && npm test     # 40 tests: business rules, validation, security, invoices (no database needed)
+cd client && npm test     # 11 tests: cart store, shared components
+```
+API reference: `docs/API.md`. Import `docs/lumiere.postman_collection.json` into Postman (log in once; cookies are kept automatically).
+Regenerate both after adding an endpoint: `cd server && node scripts/generate-docs.js`.
+
+## Card payments (Stripe test mode, optional)
+1. Create a free Stripe account, switch to **Test mode**, copy the secret key into `server/.env` as `STRIPE_SECRET_KEY`.
+2. Install the Stripe CLI and run `stripe listen --forward-to localhost:5000/api/webhooks/stripe`; put the printed `whsec_...` in `STRIPE_WEBHOOK_SECRET`. Restart the API.
+3. Checkout now offers "Credit or debit card". Pay with test card `4242 4242 4242 4242`, any future date, any CVC.
+Flow: the order is created first (stock reserved), then Stripe's page takes payment; the webhook marks it paid. Unpaid orders release their stock after 30 minutes. Admin cancel/refund on a paid card order refunds through Stripe. Without the keys, only Cash on Delivery appears.
+
 ## Status
-Done: setup, schemas + seed, auth, catalog, product detail, cart, checkout (Cash on Delivery), orders with transactional stock, admin dashboard (stats, revenue chart, recent orders, best sellers) and admin order management with a validated status workflow + audit log.
-Not yet built: homepage, filter sidebar, wishlist, Stripe, admin product/customer/coupon/inventory screens, profile + addresses, reviews, advanced features, tests, API docs/Postman.
+Done: auth, homepage, shop (full filters, grid/list), product page (zoom, camera try-on preview, prescription lenses, related, recently viewed, reviews), wishlist, cart, checkout (Cash on Delivery or Stripe), transactional orders and stock, order confirmation + low-stock emails, invoice PDFs, customer account (profile, password, addresses, orders), full admin area (dashboard, orders workflow with refunds, products, customers/roles, coupons, inventory, reviews), audit log.
+Not yet built: face-tracked frame overlay for try-on (camera + integration point are in place), prescription image upload, product comparison and personalised recommendations, admin store settings, Cloudinary uploads (products take image URLs), page-level component tests, end-to-end tests against a real database.
 Admin area: sign in as admin@lumiere.test, then open /admin.
 
 ## Deploying (free-tier demo)

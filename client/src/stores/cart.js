@@ -8,7 +8,8 @@ import { useStorage } from '@vueuse/core';
  */
 export const useCartStore = defineStore('cart', () => {
   const items = useStorage('lumiere-cart', []);
-  const key = (i) => `${i.productId}:${i.color || ''}`;
+  const key = (i) =>
+    `${i.productId}:${i.color || ''}:${i.prescription ? JSON.stringify(i.prescription) : ''}`;
   const count = computed(() => items.value.reduce((n, i) => n + i.qty, 0));
   const subtotal = computed(() => items.value.reduce((n, i) => n + i.price * i.qty, 0));
 

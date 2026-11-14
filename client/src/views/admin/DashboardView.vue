@@ -107,8 +107,9 @@ const TONES = {
               <p class="text-stone-deep">{{ o.user?.name }} · {{ shortDate(o.createdAt) }}</p>
             </div>
             <div class="flex items-center gap-3">
-              <BaseBadge :tone="TONES[o.status]" class="capitalize">{{ o.status }}</BaseBadge
-              >{{ money(o.total) }}
+              <BaseBadge :tone="TONES[o.status]" class="capitalize">{{ o.status }}</BaseBadge>{{
+                money(o.total)
+              }}
             </div>
           </li>
         </ul>
@@ -117,8 +118,7 @@ const TONES = {
         <h2 id="best" class="text-2xl">Best sellers</h2>
         <ol class="mt-4 divide-y divide-stone/20 text-sm">
           <li v-for="p in data.bestSellers" :key="p._id" class="flex justify-between py-3">
-            <span>{{ p.name }}</span
-            ><span class="text-stone-deep">{{ p.sold }} sold</span>
+            <span>{{ p.name }}</span><span class="text-stone-deep">{{ p.sold }} sold</span>
           </li>
         </ol>
       </section>

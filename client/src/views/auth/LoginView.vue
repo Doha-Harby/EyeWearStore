@@ -54,6 +54,11 @@ const submit = handleSubmit(async (values) => {
         autocomplete="current-password"
         :error="errors.password"
       />
+      <p class="text-right text-sm">
+        <RouterLink to="/forgot-password" class="text-stone-deep underline underline-offset-4"
+          >Forgot password?</RouterLink
+        >
+      </p>
       <BaseButton type="submit" class="w-full" :loading="isSubmitting">Sign in</BaseButton>
       <p class="text-sm text-stone-deep">
         New here?

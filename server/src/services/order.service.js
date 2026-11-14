@@ -61,6 +61,7 @@ export async function createOrder(userId, input) {
           sku: p.sku,
           image: p.images[0],
           color: item.color,
+          prescription: item.prescription,
           price: p.discountPrice ?? p.price,
           qty: item.qty,
         });
@@ -125,17 +126,21 @@ export async function getOrder(user, id) {
 
 /** Cancelling puts the stock back, in the same transaction as the status change. */
 export async function cancelOrder(user, id) {
+  const isStaff = ['admin', 'superadmin'].includes(user.role);
   const session = await mongoose.startSession();
   try {
     let order;
     await session.withTransaction(async () => {
-      order = await Order.findOne({
-        _id: id,
-        ...(['admin', 'superadmin'].includes(user.role) ? {} : { user: user._id }),
-      }).session(session);
+      order = await Order.findOne({ _id: id, ...(isStaff ? {} : { user: user._id }) }).session(
+        session,
+      );
       if (!order) throw ApiError.notFound('Order not found');
       if (!['pending', 'confirmed'].includes(order.status))
         throw ApiError.conflict('This order can no longer be cancelled');
+      if (order.paymentStatus === 'paid' && !isStaff)
+        throw ApiError.conflict(
+          'This order is already paid. Please contact us to cancel and refund it.',
+        );
       for (const l of order.items)
         await Product.updateOne(
           { _id: l.product },

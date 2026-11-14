@@ -1,18 +1,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { ReceiptText } from 'lucide-vue-next';
 import BaseBadge from '@/components/common/BaseBadge.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import Skeleton from '@/components/common/Skeleton.vue';
 import { getMyOrders, cancelOrder } from '@/services/orders.service';
+import { createCheckoutSession } from '@/services/payments.service';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import { money, shortDate } from '@/utils/format';
 
+const route = useRoute();
 const orders = ref([]);
 const loading = ref(true);
 const error = ref('');
+const paying = ref('');
 const { confirm } = useConfirm();
 const toast = useToast();
 const TONES = {
@@ -34,7 +38,13 @@ const load = async () => {
     loading.value = false;
   }
 };
-onMounted(load);
+onMounted(() => {
+  load();
+  if (route.query.paid) {
+    toast.success('Payment received. Thank you!');
+    setTimeout(load, 3000); // Stripe confirms to our server a moment after redirecting you back
+  }
+});
 
 async function cancel(o) {
   if (
@@ -55,6 +65,17 @@ async function cancel(o) {
     toast.error(e.message);
   }
 }
+async function pay(o) {
+  paying.value = o._id;
+  try {
+    window.location.href = (await createCheckoutSession(o._id)).url;
+  } catch (e) {
+    toast.error(e.message);
+    paying.value = '';
+  }
+}
+const needsPayment = (o) =>
+  o.paymentMethod === 'stripe' && o.paymentStatus === 'unpaid' && o.status === 'pending';
 </script>
 
 <template>
@@ -79,15 +100,26 @@ async function cancel(o) {
             <p class="font-medium">{{ o.orderNumber }}</p>
             <p class="text-sm text-stone-deep">
               {{ shortDate(o.createdAt) }} · {{ o.items.length }}
-              {{ o.items.length === 1 ? 'item' : 'items' }}
+              {{ o.items.length === 1 ? 'item' : 'items' }} ·
+              {{ o.paymentMethod === 'cod' ? 'Cash on delivery' : `Card (${o.paymentStatus})` }}
             </p>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center gap-4">
             <BaseBadge :tone="TONES[o.status]" class="capitalize">{{ o.status }}</BaseBadge><span>{{
               money(o.total)
             }}</span>
+            <a
+              :href="`/api/orders/${o._id}/invoice`"
+              target="_blank"
+              rel="noopener"
+              class="text-sm underline underline-offset-4"
+              >Invoice</a
+            >
+            <BaseButton v-if="needsPayment(o)" size="sm" :loading="paying === o._id" @click="pay(o)"
+              >Pay now</BaseButton
+            >
             <BaseButton
-              v-if="['pending', 'confirmed'].includes(o.status)"
+              v-if="['pending', 'confirmed'].includes(o.status) && o.paymentStatus !== 'paid'"
               variant="secondary"
               size="sm"
               @click="cancel(o)"
@@ -96,7 +128,13 @@ async function cancel(o) {
           </div>
         </div>
         <p class="mt-3 text-sm text-stone-deep">
-          {{ o.items.map((i) => `${i.qty} × ${i.name}`).join(', ') }}
+          {{
+            o.items
+              .map(
+                (i) => `${i.qty} × ${i.name}${i.prescription ? ' (with prescription lenses)' : ''}`,
+              )
+              .join(', ')
+          }}
         </p>
       </li>
     </ul>

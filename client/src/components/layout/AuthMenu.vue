@@ -1,13 +1,14 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
 import { useToast } from '@/composables/useToast';
 
 const auth = useAuthStore();
 const cart = useCartStore();
 const router = useRouter();
 const toast = useToast();
+const link = 'underline-offset-4 hover:underline';
 
 async function signOut() {
   await auth.logout();
@@ -17,22 +18,14 @@ async function signOut() {
 </script>
 
 <template>
-  <div class="flex items-center gap-5 text-sm">
-    <RouterLink to="/cart" class="underline-offset-4 hover:underline"
-      >Cart ({{ cart.count }})</RouterLink
-    >
-    <RouterLink
-      v-if="auth.isAuthenticated"
-      to="/account/orders"
-      class="underline-offset-4 hover:underline"
-      >Orders</RouterLink
-    >
+  <div class="flex flex-wrap items-center gap-5 text-sm">
+    <RouterLink to="/cart" :class="link">Cart ({{ cart.count }})</RouterLink>
     <template v-if="auth.isAuthenticated">
-      <span class="text-stone-deep">{{ auth.user.name.split(' ')[0] }}</span>
-      <button class="underline-offset-4 hover:underline" @click="signOut">Sign out</button>
+      <RouterLink to="/wishlist" :class="link">Wishlist</RouterLink>
+      <RouterLink to="/account" :class="link">{{ auth.user.name.split(' ')[0] }}</RouterLink>
+      <RouterLink v-if="auth.isAdmin" to="/admin" :class="link">Admin</RouterLink>
+      <button :class="link" @click="signOut">Sign out</button>
     </template>
-    <template v-else-if="auth.ready">
-      <RouterLink to="/login" class="underline-offset-4 hover:underline">Sign in</RouterLink>
-    </template>
+    <RouterLink v-else-if="auth.ready" to="/login" :class="link">Sign in</RouterLink>
   </div>
 </template>

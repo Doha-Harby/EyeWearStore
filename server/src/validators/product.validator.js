@@ -15,3 +15,7 @@ export const productQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(48).default(12),
 });
+
+export const newsletterSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Enter a valid email'),
+});

@@ -1,0 +1,868 @@
+{
+  "info": {
+    "name": "LUMIÈRE API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health"
+            },
+            "description": "API and database status (public)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Amelia Hart\",\n  \"email\": \"amelia@example.com\",\n  \"password\": \"Customer#123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register"
+            },
+            "description": "Create a customer account (role cannot be chosen) and sign in (public)"
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amelia@lumiere.test\",\n  \"password\": \"Customer#123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login"
+            },
+            "description": "Sign in; sets HttpOnly accessToken + refreshToken cookies (public)"
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh"
+            },
+            "description": "Rotate the refresh token and issue a new access token (cookie)"
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout"
+            },
+            "description": "Revoke the refresh token and clear cookies (cookie)"
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me"
+            },
+            "description": "Current user (user)"
+          }
+        },
+        {
+          "name": "POST /auth/verify-email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email"
+            },
+            "description": "Confirm an email address (public)"
+          }
+        },
+        {
+          "name": "POST /auth/forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amelia@lumiere.test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password"
+            },
+            "description": "Send a reset link (same response for unknown emails) (public)"
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"password\": \"NewPassword#123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password"
+            },
+            "description": "Set a new password; signs out all devices (public)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "GET /products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?q=&category=&brand=&shape=&material=&gender=&color=&minPrice=&maxPrice=&sort=newest&page=1&limit=12"
+            },
+            "description": "Filtered, sorted, paginated products (public)"
+          }
+        },
+        {
+          "name": "GET /products/:slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{slug}}"
+            },
+            "description": "Product details (public)"
+          }
+        },
+        {
+          "name": "GET /categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories"
+            },
+            "description": "All categories (public)"
+          }
+        },
+        {
+          "name": "GET /brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands"
+            },
+            "description": "All brands (public)"
+          }
+        },
+        {
+          "name": "POST /newsletter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"fan@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/newsletter"
+            },
+            "description": "Subscribe to the newsletter (public)"
+          }
+        },
+        {
+          "name": "GET /products/:slug/related",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{slug}}/related"
+            },
+            "description": "Related products (same category, best sellers first) (public)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "GET /products/:id/reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{id}}/reviews"
+            },
+            "description": "Visible reviews for a product (public)"
+          }
+        },
+        {
+          "name": "POST /products/:id/reviews",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"title\": \"Superb\",\n  \"comment\": \"Beautiful frames.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{id}}/reviews"
+            },
+            "description": "Post a review (verified-purchase badge if a delivered order contains it) (user)"
+          }
+        },
+        {
+          "name": "PUT /reviews/:id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"title\": \"Great\",\n  \"comment\": \"Updated.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{id}}"
+            },
+            "description": "Edit your review (owner)"
+          }
+        },
+        {
+          "name": "DELETE /reviews/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{id}}"
+            },
+            "description": "Delete a review (owner/admin)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "POST /orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"qty\": 1,\n      \"color\": \"Black\"\n    }\n  ],\n  \"shippingAddress\": {\n    \"fullName\": \"Amelia Hart\",\n    \"phone\": \"+201000000000\",\n    \"line1\": \"1 Corniche\",\n    \"city\": \"Alexandria\",\n    \"postalCode\": \"21500\",\n    \"country\": \"Egypt\"\n  },\n  \"shippingMethod\": \"standard\",\n  \"paymentMethod\": \"cod\",\n  \"couponCode\": \"WELCOME10\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders"
+            },
+            "description": "Place an order (transaction; server-side prices and stock) (user)"
+          }
+        },
+        {
+          "name": "GET /orders/my-orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/my-orders"
+            },
+            "description": "Your orders (user)"
+          }
+        },
+        {
+          "name": "GET /orders/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{id}}"
+            },
+            "description": "One order (ownership enforced) (owner/admin)"
+          }
+        },
+        {
+          "name": "POST /orders/:id/cancel",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{id}}/cancel"
+            },
+            "description": "Cancel a pending/confirmed order and restore stock (owner/admin)"
+          }
+        },
+        {
+          "name": "POST /coupons/validate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WELCOME10\",\n  \"subtotal\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/validate"
+            },
+            "description": "Preview a coupon discount (user)"
+          }
+        },
+        {
+          "name": "GET /orders/:id/invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{id}}/invoice"
+            },
+            "description": "Invoice as a PDF (owner/admin)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "GET /wishlist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist"
+            },
+            "description": "Saved products (user)"
+          }
+        },
+        {
+          "name": "POST /wishlist/:productId",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist/{{productId}}"
+            },
+            "description": "Add to wishlist (user)"
+          }
+        },
+        {
+          "name": "DELETE /wishlist/:productId",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist/{{productId}}"
+            },
+            "description": "Remove from wishlist (user)"
+          }
+        },
+        {
+          "name": "PATCH /account/profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Amelia Hart\",\n  \"phone\": \"+201000000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/profile"
+            },
+            "description": "Update profile (user)"
+          }
+        },
+        {
+          "name": "POST /account/password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Customer#123\",\n  \"newPassword\": \"NewPassword#123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/password"
+            },
+            "description": "Change password (user)"
+          }
+        },
+        {
+          "name": "GET /account/addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/addresses"
+            },
+            "description": "Saved addresses (user)"
+          }
+        },
+        {
+          "name": "POST /account/addresses",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Home\",\n  \"fullName\": \"Amelia Hart\",\n  \"phone\": \"+201000000000\",\n  \"line1\": \"1 Corniche\",\n  \"city\": \"Alexandria\",\n  \"postalCode\": \"21500\",\n  \"country\": \"Egypt\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/addresses"
+            },
+            "description": "Add an address (user)"
+          }
+        },
+        {
+          "name": "PUT /account/addresses/:id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Amelia Hart\",\n  \"phone\": \"+201000000000\",\n  \"line1\": \"2 Corniche\",\n  \"city\": \"Alexandria\",\n  \"postalCode\": \"21500\",\n  \"country\": \"Egypt\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/addresses/{{id}}"
+            },
+            "description": "Edit an address (user)"
+          }
+        },
+        {
+          "name": "DELETE /account/addresses/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/addresses/{{id}}"
+            },
+            "description": "Delete an address (user)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET /admin/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard"
+            },
+            "description": "Stats, 14-day revenue, recent orders, best sellers (admin)"
+          }
+        },
+        {
+          "name": "GET /admin/orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders?status=&q=&page=1"
+            },
+            "description": "All orders (admin)"
+          }
+        },
+        {
+          "name": "PATCH /admin/orders/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders/{{id}}/status"
+            },
+            "description": "Move an order along its workflow (illegal moves rejected) (admin)"
+          }
+        },
+        {
+          "name": "GET /admin/products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products?q=&deleted=false&page=1"
+            },
+            "description": "Products (or the trash) (admin)"
+          }
+        },
+        {
+          "name": "POST /admin/products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Frame\",\n  \"sku\": \"LUM-100\",\n  \"brand\": \"{{brandId}}\",\n  \"category\": \"{{categoryId}}\",\n  \"price\": 180,\n  \"stock\": 10,\n  \"frameShape\": \"round\",\n  \"gender\": \"unisex\",\n  \"images\": [],\n  \"colors\": [\n    {\n      \"name\": \"Black\",\n      \"hex\": \"#1a1a1a\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products"
+            },
+            "description": "Create a product (admin)"
+          }
+        },
+        {
+          "name": "PUT /admin/products/:id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Frame\",\n  \"sku\": \"LUM-100\",\n  \"brand\": \"{{brandId}}\",\n  \"category\": \"{{categoryId}}\",\n  \"price\": 190\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/{{id}}"
+            },
+            "description": "Edit a product (stock excluded) (admin)"
+          }
+        },
+        {
+          "name": "DELETE /admin/products/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/{{id}}"
+            },
+            "description": "Soft-delete (move to trash) (admin)"
+          }
+        },
+        {
+          "name": "POST /admin/products/:id/restore",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/{{id}}/restore"
+            },
+            "description": "Restore from trash (admin)"
+          }
+        },
+        {
+          "name": "POST /admin/products/:id/stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 5,\n  \"note\": \"Supplier delivery\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/{{id}}/stock"
+            },
+            "description": "Adjust stock (logged) (admin)"
+          }
+        },
+        {
+          "name": "GET /admin/customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/customers?q=&page=1"
+            },
+            "description": "Users (admin)"
+          }
+        },
+        {
+          "name": "PATCH /admin/customers/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/customers/{{id}}"
+            },
+            "description": "Activate/deactivate; role changes need superadmin (admin/superadmin)"
+          }
+        },
+        {
+          "name": "GET /admin/coupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/coupons"
+            },
+            "description": "Coupons (admin)"
+          }
+        },
+        {
+          "name": "POST /admin/coupons",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SUMMER15\",\n  \"type\": \"percent\",\n  \"value\": 15,\n  \"minOrder\": 100,\n  \"usageLimit\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/coupons"
+            },
+            "description": "Create a coupon (admin)"
+          }
+        },
+        {
+          "name": "PATCH /admin/coupons/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/coupons/{{id}}"
+            },
+            "description": "Edit/toggle a coupon (admin)"
+          }
+        },
+        {
+          "name": "DELETE /admin/coupons/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/coupons/{{id}}"
+            },
+            "description": "Delete a coupon (admin)"
+          }
+        },
+        {
+          "name": "GET /admin/inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/inventory"
+            },
+            "description": "Low stock + movement history (admin)"
+          }
+        },
+        {
+          "name": "GET /admin/reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reviews?page=1"
+            },
+            "description": "All reviews (admin)"
+          }
+        },
+        {
+          "name": "PATCH /admin/reviews/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isHidden\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reviews/{{id}}"
+            },
+            "description": "Hide or show a review (admin)"
+          }
+        },
+        {
+          "name": "DELETE /admin/reviews/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reviews/{{id}}"
+            },
+            "description": "Delete a review (admin)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "GET /payments/config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/config"
+            },
+            "description": "Whether card payments are enabled (public)"
+          }
+        },
+        {
+          "name": "POST /payments/orders/:id/session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/orders/{{id}}/session"
+            },
+            "description": "Start a Stripe Checkout session; returns { url } (owner)"
+          }
+        },
+        {
+          "name": "POST /webhooks/stripe",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/stripe"
+            },
+            "description": "Stripe webhook (raw body, signature verified): marks orders paid or releases stock when a session expires (Stripe signature)"
+          }
+        }
+      ]
+    }
+  ]
+}

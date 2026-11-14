@@ -43,6 +43,22 @@ export async function listProducts(q) {
   };
 }
 
+/** Same-category products, best sellers first. Powers the "You may also like" row. */
+export async function getRelated(slug) {
+  const p = await Product.findOne({ slug, isActive: true, deletedAt: null }).select('category');
+  if (!p) throw ApiError.notFound('Product not found');
+  return Product.find({
+    category: p.category,
+    _id: { $ne: p._id },
+    isActive: true,
+    deletedAt: null,
+  })
+    .sort({ sold: -1 })
+    .limit(4)
+    .populate('brand', 'name slug')
+    .lean();
+}
+
 export async function getProductBySlug(slug) {
   const p = await Product.findOne({ slug, isActive: true, deletedAt: null })
     .populate('brand category')
