@@ -1,4 +1,5 @@
 import express from 'express';
+import { fileURLToPath } from 'node:url';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -29,6 +30,14 @@ app.post(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+// Product images. Mounted BEFORE the rate limiter so browsing the shop never uses up the request quota.
+app.use(
+  '/api/static',
+  express.static(fileURLToPath(new URL('../public', import.meta.url)), {
+    maxAge: '1d',
+    setHeaders: (res) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'),
+  }),
+);
 app.use(
   '/api',
   rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),

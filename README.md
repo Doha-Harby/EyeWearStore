@@ -21,14 +21,17 @@ Open http://localhost:5173/design-system — the "API connection" badges should 
 - API shape: `{ success: true, data, message?, meta? }` or `{ success: false, message, errors? }`.
 - Client: pages in `views/`, layouts in `layouts/`, reusable UI in `components/common/`, API calls in `services/`.
 
-## Seed data (Phase 2)
-`cd server && npm run seed` (local only; wipes users and catalog).
-Admin: `admin@lumiere.test` / `Admin#12345` · Customers: `amelia@lumiere.test`, `omar@lumiere.test` / `Customer#123`.
-Emails (verification, password reset) print in the server console unless `SMTP_*` is set (Ethereal/Mailtrap).
+## Demo data (`cd server && npm run seed`)
+Local only: wipes the database and loads a consistent demo store. The same data is generated every run.
+- **Accounts** (password in brackets): admin@lumiere.test (`Admin#12345`, super admin) · staff@lumiere.test (`Staff#12345`, admin) · customers `amelia`, `omar`, `layla`, `youssef`, `sara`, `daniel`, `mariam`, `noor`, `chloe` @lumiere.test (`Customer#123`). `karim@lumiere.test` is deactivated and `noor@` has an unverified email, to show those states.
+- **Catalog:** 24 products, 6 brands, 5 categories, each with 2 generated SVG images (`server/public/products`, regenerate with `node scripts/generate-images.js`). One product is low on stock, one sold out, some on sale.
+- **Orders:** about 30 over the last 40 days, in every status (pending to refunded), Cash on Delivery and card, some with coupons, some with prescription lenses. Stock, inventory history, totals and coupon counts all add up.
+- **Also:** ~30 reviews (verified and unverified, one hidden spam review), wishlists, saved addresses, 5 coupons (`WELCOME10`, `SUMMER15`, `FLAT20`, plus an expired and a disabled one), newsletter subscribers, restock and damage entries in the inventory log.
+Emails (verification, reset, order confirmation) print in the server console unless `SMTP_*` is set.
 
 ## Testing
 ```bash
-cd server && npm test     # 40 tests: business rules, validation, security, invoices (no database needed)
+cd server && npm test     # 54 tests: business rules, validation, security, invoices, demo-data consistency (no database needed)
 cd client && npm test     # 11 tests: cart store, shared components
 ```
 API reference: `docs/API.md`. Import `docs/lumiere.postman_collection.json` into Postman (log in once; cookies are kept automatically).

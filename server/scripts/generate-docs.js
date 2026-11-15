@@ -275,11 +275,32 @@ const E = [
   ['Admin', 'GET', '/admin/reviews?page=1', 'admin', null, 'All reviews'],
   ['Admin', 'PATCH', '/admin/reviews/:id', 'admin', { isHidden: true }, 'Hide or show a review'],
   ['Admin', 'DELETE', '/admin/reviews/:id', 'admin', null, 'Delete a review'],
-  ['Catalog', 'GET', '/products/:slug/related', 'public', null, 'Related products (same category, best sellers first)'],
+  [
+    'Catalog',
+    'GET',
+    '/products/:slug/related',
+    'public',
+    null,
+    'Related products (same category, best sellers first)',
+  ],
   ['Orders', 'GET', '/orders/:id/invoice', 'owner/admin', null, 'Invoice as a PDF'],
   ['Payments', 'GET', '/payments/config', 'public', null, 'Whether card payments are enabled'],
-  ['Payments', 'POST', '/payments/orders/:id/session', 'owner', null, 'Start a Stripe Checkout session; returns { url }'],
-  ['Payments', 'POST', '/webhooks/stripe', 'Stripe signature', null, 'Stripe webhook (raw body, signature verified): marks orders paid or releases stock when a session expires'],
+  [
+    'Payments',
+    'POST',
+    '/payments/orders/:id/session',
+    'owner',
+    null,
+    'Start a Stripe Checkout session; returns { url }',
+  ],
+  [
+    'Payments',
+    'POST',
+    '/webhooks/stripe',
+    'Stripe signature',
+    null,
+    'Stripe webhook (raw body, signature verified): marks orders paid or releases stock when a session expires',
+  ],
 ];
 
 const toVar = (p) => p.replace(/:(\w+)/g, '{{$1}}');
