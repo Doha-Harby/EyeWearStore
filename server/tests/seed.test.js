@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import request from 'supertest';
-import app from '../src/app.js';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { buildSeedData, CATALOG } from '../src/seedData.js';
-import { renderProductSvg } from '../src/utils/productImages.js';
+import { renderProductSvg, imageUrls } from '../src/utils/productImages.js';
 import { ORDER_STATUSES } from '../src/models/Order.js';
 import { Product } from '../src/models/Product.js';
 import { Order } from '../src/models/Order.js';
@@ -118,9 +118,12 @@ describe('product images', () => {
         expect((svg.match(/<g[ >]/g) || []).length).toBe((svg.match(/<\/g>/g) || []).length);
       }
   });
-  it('are served by the API', async () => {
-    const res = await request(app).get(`/api/static/products/${CATALOG[0].slug}-1.svg`);
-    expect(res.status).toBe(200);
-    expect(res.headers['content-type']).toMatch(/svg/);
+  it('exist on disk where the frontend serves them (client/public/products)', () => {
+    for (const c of CATALOG)
+      for (const url of imageUrls(c.slug))
+        expect(
+          existsSync(fileURLToPath(new URL(`../../client/public${url}`, import.meta.url))),
+          url,
+        ).toBe(true);
   });
 });

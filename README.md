@@ -48,11 +48,20 @@ Done: auth, homepage, shop (full filters, grid/list), product page (zoom, camera
 Not yet built: face-tracked frame overlay for try-on (camera + integration point are in place), prescription image upload, product comparison and personalised recommendations, admin store settings, Cloudinary uploads (products take image URLs), page-level component tests, end-to-end tests against a real database.
 Admin area: sign in as admin@lumiere.test, then open /admin.
 
-## Deploying (free-tier demo)
-1. **Database:** MongoDB Atlas M0 cluster → copy the `mongodb+srv://...` URI (database name `lumiere`). Allow network access (Render has no fixed IP on the free plan, so use 0.0.0.0/0 with a strong DB password).
-2. **API:** Render *Web Service* · root `server` · build `npm install` · start `npm start` · health check `/api/health`.
-   Env: `NODE_ENV=production`, `MONGODB_URI`, `CLIENT_URL` (your site URL), `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, and real `SMTP_*` for emails.
-3. **Site:** Render *Static Site* · root `client` · build `npm install && npm run build` · publish `dist`.
-   Rewrite rules, in this order: `/api/*` → `https://YOUR-API.onrender.com/api/*` (Rewrite), then `/*` → `/index.html` (Rewrite).
-   The API rewrite keeps browser and API on one origin, which the HttpOnly cookie auth needs.
-4. **Seed once, from your laptop:** `MONGODB_URI="<atlas uri>" npm run seed` (NODE_ENV must NOT be production), then change the admin password.
+## Deploying on Vercel (one project, frontend + API on the same domain)
+Uses **Vercel Services** (Beta): `vercel.json` at the repo root defines two services, `web` (`client/`, a Vite app) and `api` (`server/`, the Express app, detected from `src/app.js`). `/api/*` goes to the API, everything else to the frontend. One domain means the HttpOnly cookie login works with no CORS setup.
+
+1. **Database:** MongoDB Atlas free cluster. Create a database user, allow network access from `0.0.0.0/0` (Vercel has no fixed IPs; use a strong password), and copy the `mongodb+srv://.../lumiere` connection string.
+2. **Demo data (optional, from your laptop):** `cd server && MONGODB_URI="<atlas uri>" npm run seed` (wipes that database; NODE_ENV must not be production). Then change the admin password.
+3. **GitHub:** push this folder (the one containing `vercel.json`, `client/` and `server/`).
+4. **Vercel:** *Add New > Project*, import the repo, keep the Root Directory as the repo root, and under *Settings > Build and Deployment* set **Framework Preset = Services**.
+5. **Environment variables** (Settings > Environment Variables): `NODE_ENV=production`, `MONGODB_URI`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (two different 48+ byte random strings), `CLIENT_URL` (your deployed URL, e.g. `https://your-app.vercel.app`; set it after the first deploy, then redeploy), and optionally `SMTP_*`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_EMAIL`.
+6. **Deploy**, then open `https://<your-app>.vercel.app/api/health` (should show `"database": "connected"`) and the site.
+7. **Stripe (optional):** webhook endpoint `https://<your-app>.vercel.app/api/webhooks/stripe`; test it with Stripe's "Send test event" before relying on it.
+
+Notes: the API connects to MongoDB on the first request after a cold start (about a second slower). Rate limits are counted per running instance. Vercel's free Hobby plan is intended for personal, non-commercial use, so check their terms before running a real store on it.
+Troubleshooting: "doesn't build as services" means the Framework Preset isn't Services; a 404 when refreshing `/shop` means the SPA fallback isn't applied (the build also writes `404.html` as a backup); `503 Service temporarily unavailable` means MongoDB can't be reached (check `MONGODB_URI` and the Atlas IP allow-list); if the API isn't detected, add `"entrypoint": "src/app.js"` to the `api` service in `vercel.json`.
+Product images are static files in `client/public/products` (regenerate with `cd server && node scripts/generate-images.js`). After upgrading from an older version, re-run `npm run seed` so image URLs point to `/products/...`.
+
+## Other hosts
+Any Node host works for the API (`npm start` in `server/`, health check `/api/health`) with a static host for `client/dist`, as long as `/api/*` is proxied to the API on the same domain.

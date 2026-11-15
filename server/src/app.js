@@ -1,5 +1,4 @@
 import express from 'express';
-import { fileURLToPath } from 'node:url';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -7,6 +6,8 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { asyncHandler } from './utils/asyncHandler.js';
 import { handleWebhook } from './services/payment.service.js';
+import { ensureDb } from './config/db.js';
+import { ApiError } from './utils/ApiError.js';
 import routes from './routes/index.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
@@ -16,6 +17,19 @@ const app = express();
 // On Render/any host, requests arrive through a reverse proxy. Trusting it makes req.ip (used by the
 // rate limiter) the real visitor IP instead of the proxy's IP.
 app.set('trust proxy', 1);
+
+// Serverless hosts (Vercel) load this file directly, without start.js, so MongoDB is connected lazily on the
+// first request and reused afterwards. Locally, start.js connects before listening and this is a no-op.
+app.use((req, _res, next) => {
+  if (env.NODE_ENV === 'test' || req.path === '/api/health') return next();
+  ensureDb().then(
+    () => next(),
+    (err) => {
+      console.error('Database connection failed:', err.message);
+      next(new ApiError(503, 'Service temporarily unavailable. Please try again.'));
+    },
+  );
+});
 
 app.disable('x-powered-by');
 app.use(helmet());
@@ -30,14 +44,6 @@ app.post(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
-// Product images. Mounted BEFORE the rate limiter so browsing the shop never uses up the request quota.
-app.use(
-  '/api/static',
-  express.static(fileURLToPath(new URL('../public', import.meta.url)), {
-    maxAge: '1d',
-    setHeaders: (res) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'),
-  }),
-);
 app.use(
   '/api',
   rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),

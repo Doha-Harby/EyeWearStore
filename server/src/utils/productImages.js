@@ -3,11 +3,11 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * Generates clean, on-brand eyewear illustrations as SVG (no external image hosting, so links never break).
- * They are served by Express at /api/static/products/<slug>-<n>.svg. Replace them with real photos any time
+ * They live in client/public/products, so the frontend host (Vite, Vercel, any CDN) serves them as /products/<slug>-<n>.svg.
  * by editing a product's image URLs in the admin.
  */
-const DIR = fileURLToPath(new URL('../../public/products/', import.meta.url));
-export const imageUrls = (slug) => [1, 2].map((n) => `/api/static/products/${slug}-${n}.svg`);
+const DIR = fileURLToPath(new URL('../../../client/public/products/', import.meta.url));
+export const imageUrls = (slug) => [1, 2].map((n) => `/products/${slug}-${n}.svg`);
 
 const SHAPES = {
   round: '<circle r="92"/>',
